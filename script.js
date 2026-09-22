@@ -7,42 +7,46 @@ let index = 0;
 
 let MEDIA = {
   holud: [],
-  wedding: [],
-  videos: []
+  wedding: []
 };
 
 const grid = document.getElementById("gallery-grid");
-const videoGrid = document.getElementById("video-grid");
 
-const lightbox = document.getElementById("lightbox");
-const content = document.getElementById("lightbox-content");
-const caption = document.getElementById("caption");
+const lightbox =
+  document.getElementById("lightbox");
+
+const content =
+  document.getElementById("lightbox-content");
+
+const caption =
+  document.getElementById("caption");
 
 
-// --------------------------------------------------
-// LOAD GOOGLE DRIVE MEDIA
-// --------------------------------------------------
+// ==========================================
+// LOAD PHOTOS FROM GOOGLE DRIVE
+// ==========================================
 
-function loadDriveMedia() {
+function loadDrivePhotos() {
+
   return new Promise((resolve, reject) => {
 
     const callbackName =
-      "shairyWeddingCallback_" +
-      Date.now();
+      "shairyWedding_" + Date.now();
+
 
     window[callbackName] = function(data) {
 
       try {
+
         MEDIA.holud =
           data.wedding?.holud || [];
 
         MEDIA.wedding =
           data.wedding?.wedding || [];
 
-        MEDIA.videos =
-          data.wedding?.videos || [];
 
         delete window[callbackName];
+
 
         const oldScript =
           document.getElementById(
@@ -53,10 +57,13 @@ function loadDriveMedia() {
           oldScript.remove();
         }
 
-        resolve(data);
+
+        resolve();
 
       } catch (error) {
+
         reject(error);
+
       }
     };
 
@@ -64,42 +71,41 @@ function loadDriveMedia() {
     const script =
       document.createElement("script");
 
-    script.id = "shairy-drive-api";
+    script.id =
+      "shairy-drive-api";
+
 
     script.src =
       API_URL +
       "?callback=" +
       encodeURIComponent(callbackName);
 
+
     script.onerror = function() {
+
       delete window[callbackName];
-
-      const oldScript =
-        document.getElementById(
-          "shairy-drive-api"
-        );
-
-      if (oldScript) {
-        oldScript.remove();
-      }
 
       reject(
         new Error(
-          "Unable to load Google Drive media."
+          "Google Drive connection failed."
         )
       );
+
     };
 
+
     document.body.appendChild(script);
+
   });
+
 }
 
 
-// --------------------------------------------------
-// GOOGLE DRIVE IMAGE URLS
-// --------------------------------------------------
+// ==========================================
+// DRIVE IMAGE URL
+// ==========================================
 
-function imageThumbnail(file) {
+function getImageURL(file) {
 
   return (
     "https://drive.google.com/thumbnail" +
@@ -107,37 +113,34 @@ function imageThumbnail(file) {
     encodeURIComponent(file.id) +
     "&sz=w1600"
   );
+
 }
 
 
-function imageFull(file) {
-
-  return (
-    "https://drive.google.com/uc" +
-    "?export=view&id=" +
-    encodeURIComponent(file.id)
-  );
-}
-
-
-// --------------------------------------------------
-// PHOTO GALLERY
-// --------------------------------------------------
+// ==========================================
+// RENDER PHOTOS
+// ==========================================
 
 function renderPhotos() {
 
-  items = MEDIA[category] || [];
+  items =
+    MEDIA[category] || [];
+
 
   grid.innerHTML = "";
+
 
   if (!items.length) {
 
     grid.innerHTML =
-      '<p class="empty-message">' +
-      "No photos found." +
-      "</p>";
+      `
+      <div class="empty-message">
+        No photos found.
+      </div>
+      `;
 
     return;
+
   }
 
 
@@ -146,26 +149,24 @@ function renderPhotos() {
     const card =
       document.createElement("article");
 
-    card.className = "photo";
+    card.className =
+      "photo";
 
 
     const img =
       document.createElement("img");
 
-    img.loading = "lazy";
+
+    img.loading =
+      "lazy";
+
 
     img.src =
-      imageThumbnail(file);
+      getImageURL(file);
+
 
     img.alt =
       file.name;
-
-
-    img.onerror = function() {
-
-      this.src =
-        imageFull(file);
-    };
 
 
     const label =
@@ -185,72 +186,20 @@ function renderPhotos() {
 
 
     grid.appendChild(card);
+
   });
+
 }
 
 
-// --------------------------------------------------
-// VIDEO GALLERY
-// --------------------------------------------------
-
-function renderVideos() {
-
-  videoGrid.innerHTML = "";
-
-  const videos =
-    MEDIA.videos || [];
-
-
-  if (!videos.length) {
-
-    videoGrid.innerHTML =
-      '<p class="empty-message">' +
-      "No videos found." +
-      "</p>";
-
-    return;
-  }
-
-
-  videos.forEach(file => {
-
-    const card =
-      document.createElement("article");
-
-    card.className =
-      "video-card";
-
-
-    card.innerHTML = `
-      <div class="video-cover">
-        <div class="play">▶</div>
-      </div>
-      <div class="video-name"></div>
-    `;
-
-
-    card.querySelector(
-      ".video-name"
-    ).textContent =
-      file.name;
-
-
-    card.onclick =
-      () => openVideo(file);
-
-
-    videoGrid.appendChild(card);
-  });
-}
-
-
-// --------------------------------------------------
-// PHOTO LIGHTBOX
-// --------------------------------------------------
+// ==========================================
+// OPEN FULL PHOTO
+// ==========================================
 
 function openPhoto(i) {
 
   index = i;
+
 
   const file =
     items[index];
@@ -262,8 +211,10 @@ function openPhoto(i) {
   const img =
     document.createElement("img");
 
+
   img.src =
-    imageFull(file);
+    getImageURL(file);
+
 
   img.alt =
     file.name;
@@ -276,71 +227,27 @@ function openPhoto(i) {
     file.name;
 
 
-  showLightbox(false);
+  showLightbox();
+
 }
 
 
-// --------------------------------------------------
-// VIDEO LIGHTBOX
-// --------------------------------------------------
-
-function openVideo(file) {
-
-  content.innerHTML = "";
-
-
-  // Google Drive preview works better
-  // for very large MP4 files than trying
-  // to download the entire file.
-
-  const iframe =
-    document.createElement("iframe");
-
-  iframe.src =
-    file.driveUrl;
-
-  iframe.allow =
-    "autoplay";
-
-  iframe.allowFullscreen =
-    true;
-
-  iframe.frameBorder =
-    "0";
-
-  iframe.style.width =
-    "min(95vw, 1200px)";
-
-  iframe.style.height =
-    "min(80vh, 700px)";
-
-  iframe.style.border =
-    "0";
-
-
-  content.appendChild(iframe);
-
-
-  caption.textContent =
-    file.name;
-
-
-  showLightbox(true);
-}
-
-
-// --------------------------------------------------
+// ==========================================
 // LIGHTBOX
-// --------------------------------------------------
+// ==========================================
 
-function showLightbox(video = false) {
+function showLightbox() {
 
-  lightbox.classList.add("open");
+  lightbox.classList.add(
+    "open"
+  );
+
 
   lightbox.setAttribute(
     "aria-hidden",
     "false"
   );
+
 
   document.body.style.overflow =
     "hidden";
@@ -348,14 +255,13 @@ function showLightbox(video = false) {
 
   document.getElementById(
     "prev"
-  ).style.display =
-    video ? "none" : "";
+  ).style.display = "";
 
 
   document.getElementById(
     "next"
-  ).style.display =
-    video ? "none" : "";
+  ).style.display = "";
+
 }
 
 
@@ -365,39 +271,56 @@ function closeLightbox() {
     "open"
   );
 
+
   lightbox.setAttribute(
     "aria-hidden",
     "true"
   );
 
-  content.innerHTML = "";
+
+  content.innerHTML =
+    "";
+
 
   document.body.style.overflow =
     "";
+
 }
 
+
+// ==========================================
+// NEXT / PREVIOUS
+// ==========================================
 
 function move(dir) {
 
-  if (!items.length) return;
+  if (!items.length)
+    return;
+
 
   index =
-    (index + dir + items.length) %
+    (
+      index +
+      dir +
+      items.length
+    ) %
     items.length;
 
+
   openPhoto(index);
+
 }
 
 
-// --------------------------------------------------
-// CATEGORY TABS
-// --------------------------------------------------
+// ==========================================
+// CATEGORY BUTTONS
+// ==========================================
 
 document
   .querySelectorAll(".tab")
-  .forEach(btn => {
+  .forEach(button => {
 
-    btn.onclick = () => {
+    button.onclick = () => {
 
       document
         .querySelectorAll(".tab")
@@ -408,23 +331,25 @@ document
         );
 
 
-      btn.classList.add(
+      button.classList.add(
         "active"
       );
 
 
       category =
-        btn.dataset.category;
+        button.dataset.category;
 
 
       renderPhotos();
+
     };
+
   });
 
 
-// --------------------------------------------------
-// CONTROLS
-// --------------------------------------------------
+// ==========================================
+// LIGHTBOX CONTROLS
+// ==========================================
 
 document.getElementById(
   "close"
@@ -445,83 +370,99 @@ document.getElementById(
 
 
 lightbox.onclick =
-  e => {
+  event => {
 
     if (
-      e.target === lightbox
+      event.target === lightbox
     ) {
+
       closeLightbox();
+
     }
+
   };
 
 
+// ==========================================
+// KEYBOARD
+// ==========================================
+
 document.addEventListener(
   "keydown",
-  e => {
+  event => {
 
     if (
-      e.key === "Escape"
+      event.key === "Escape"
     ) {
+
       closeLightbox();
+
     }
 
 
     if (
-      e.key === "ArrowLeft" &&
+      event.key === "ArrowLeft" &&
       lightbox.classList.contains(
         "open"
       )
     ) {
+
       move(-1);
+
     }
 
 
     if (
-      e.key === "ArrowRight" &&
+      event.key === "ArrowRight" &&
       lightbox.classList.contains(
         "open"
       )
     ) {
+
       move(1);
+
     }
+
   }
 );
 
 
-// --------------------------------------------------
-// START WEBSITE
-// --------------------------------------------------
+// ==========================================
+// START
+// ==========================================
 
 async function startWebsite() {
 
   try {
 
-    await loadDriveMedia();
+    await loadDrivePhotos();
 
     renderPhotos();
 
-    renderVideos();
+  }
 
-  } catch (error) {
+  catch (error) {
 
-    console.error(
-      "Google Drive error:",
-      error
-    );
+    console.error(error);
 
 
     grid.innerHTML =
-      '<p class="empty-message">' +
-      "Unable to load wedding photos. " +
-      "Please try again later." +
-      "</p>";
+      `
+      <div class="empty-message">
+        Unable to load photos.
+        Please refresh the page.
+      </div>
+      `;
 
-  } finally {
+  }
+
+  finally {
 
     const loader =
       document.getElementById(
         "loader"
       );
+
 
     if (loader) {
 
@@ -532,8 +473,11 @@ async function startWebsite() {
         );
 
       }, 300);
+
     }
+
   }
+
 }
 
 
