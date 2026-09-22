@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shairy's Wedding</title>
+<meta name="description" content="Shairy's Wedding — photographs and films.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="loader"><span></span></div>
+
+<header class="hero">
+  <div class="hero-images">
+    <div class="hero-photo hero-one"></div>
+    <div class="hero-photo hero-two"></div>
+  </div>
+  <div class="hero-shade"></div>
+  <nav>
+    <a class="logo" href="#">SHairy's Wedding</a>
+    <div class="nav-links">
+      <a href="#gallery">Gallery</a>
+      <a href="#films">Films</a>
+    </div>
+  </nav>
+  <div class="hero-copy">
+    <p class="eyebrow">A CELEBRATION OF LOVE</p>
+    <h1>Shairy's<br><i>Wedding</i></h1>
+    <p class="sub">HOLUD · WEDDING · FILMS</p>
+    <a class="scroll" href="#gallery">Explore the gallery <b>↓</b></a>
+  </div>
+</header>
+
+<main>
+<section class="intro">
+  <p class="eyebrow">THE BEGINNING</p>
+  <h2>Two days.<br><i>Countless memories.</i></h2>
+  <p>Photographs from the colors of Holud and the elegance of the wedding day, preserved in one place.</p>
+</section>
+
+<section id="gallery" class="gallery-section">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">THE PHOTOGRAPHS</p>
+      <h2>Captured <i>moments</i></h2>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-category="holud">Holud</button>
+      <button class="tab" data-category="wedding">Wedding</button>
+    </div>
+  </div>
+  <div id="gallery-grid" class="masonry"></div>
+</section>
+
+<section id="films" class="films">
+  <div class="films-inner">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">THE FILMS</p>
+        <h2>Moments in <i>motion</i></h2>
+      </div>
+    </div>
+    <div id="video-grid" class="video-grid"></div>
+  </div>
+</section>
+
+<section class="closing">
+  <p class="eyebrow">WITH LOVE</p>
+  <h2>Thank you for<br><i>being part of the day.</i></h2>
+</section>
+</main>
+
+<footer>Shairy's Wedding · 2026</footer>
+
+<div id="lightbox" class="lightbox" aria-hidden="true">
+  <button id="close" class="close">×</button>
+  <button id="prev" class="arrow left">‹</button>
+  <div id="lightbox-content"></div>
+  <button id="next" class="arrow right">›</button>
+  <div id="caption"></div>
+</div>
+
+<script src="media-manifest.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
